@@ -51,59 +51,21 @@ Then connect from the app using your machine's IP address and port 3001.
 ## Project Structure
 
 ```
-app/src/main/java/com/claudecode/mobile/
-├── ClaudeCodeApp.kt          # Application class
-├── MainActivity.kt           # WebView host activity
-├── SettingsActivity.kt       # Server management
-├── AddServerActivity.kt      # Add/edit server form
-├── data/
-│   ├── ServerConfig.kt       # Server data model
-│   └── ServerRepository.kt   # SQLite storage
-└── web/
-    └── CloudWebViewClient.kt # WebView client with error handling
+app/src/main/java/com/antigravity/mobile/
+├── AntigravityApp.kt        # Application class
+├── network/
+│   └── TokenManager.kt      # Token & Server preferences
+└── ui/
+    ├── MainActivity.kt      # Edge-to-edge WebView & system bar adapter
+    └── LoginActivity.kt     # Web authentication host
 ```
 
-## Building
+## GitHub Actions CI/CD
 
-### Prerequisites
-
-- Android Studio Hedgehog (2023.1) or later
-- JDK 17
-- Android SDK 34
-
-### Release Build
-
-```bash
-# Generate a signing keystore
-keytool -genkey -v -keystore release.keystore -alias claudecode \
-  -keyalg RSA -keysize 2048 -validity 10000
-
-# Build release APK
-./gradlew assembleRelease
-
-# Sign the APK
-apksigner sign --ks release.keystore \
-  app/build/outputs/apk/release/app-release-unsigned.apk
-```
-
-### GitHub Actions
-
-The repository includes a GitHub Actions workflow (`.github/workflows/build.yml`) that:
-1. Builds debug and release APKs on tag push
-2. Signs the release APK (if signing secrets are configured)
-3. Creates a GitHub Release with the APK attached
-
-To configure release signing, add these repository secrets:
-- `SIGNING_KEY` - Base64-encoded keystore file
-- `KEY_ALIAS` - Keystore alias
-- `KEY_STORE_PASSWORD` - Keystore password
-- `KEY_PASSWORD` - Key password
+The repository includes an automatic build & release workflow (`.github/workflows/build.yml`) that:
+1. Builds signed debug and release APKs upon pushing any `v*` tag
+2. Creates a GitHub Release and uploads downloadable APK artifacts automatically
 
 ## License
 
 This project is licensed under the MIT License.
-
-## Acknowledgments
-
-- [Claude Code UI](https://github.com/siteboon/claudecodeui) by siteboon
-- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) by Anthropic

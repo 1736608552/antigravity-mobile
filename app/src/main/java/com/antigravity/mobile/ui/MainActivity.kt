@@ -48,22 +48,12 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 手动开启 edge-to-edge 布局（不用 enableEdgeToEdge 避免系统栏被重置为透明）
+        // 开启 edge-to-edge 布局，由 WindowInsets 统一控制 Padding 避免挡住任务栏和输入框
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
-        // 同步读取 token，避免异步延迟导致黑屏
-        val (serverUrl, token) = runBlocking {
-            Pair(tokenManager.getServerUrl(), tokenManager.getToken())
-        }
-
-        val targetUrl = serverUrl?.ifBlank { "http://fn0.xx.kg:3100" } ?: "http://fn0.xx.kg:3100"
-
-        if (!token.isNullOrBlank()) {
-            showWebView(targetUrl, token)
-        } else {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        }
+        val targetUrl = "http://fn0.xx.kg:3100"
+        val token = runBlocking { tokenManager.getToken() } ?: ""
+        showWebView(targetUrl, token)
     }
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -203,34 +193,40 @@ class MainActivity : ComponentActivity() {
                     null
                 )
 
-                // 读取网页背景色，动态设置系统栏颜色
+                // 实时监听网页主题/背景色变化，动态同步 Android 状态栏与导航栏颜色
                 view.evaluateJavascript(
                     """
                     (function() {
-                        function getBg(el) {
-                            if (!el) return null;
+                        function updateSystemBar() {
                             try {
-                                var bg = window.getComputedStyle(el).backgroundColor;
-                                if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') return bg;
+                                function getBg(el) {
+                                    if (!el) return null;
+                                    var bg = window.getComputedStyle(el).backgroundColor;
+                                    if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') return bg;
+                                    return null;
+                                }
+                                var color = getBg(document.querySelector('header'))
+                                    || getBg(document.body)
+                                    || getBg(document.documentElement)
+                                    || getBg(document.getElementById('root'))
+                                    || '#181A1F';
+                                AndroidBridge.setSystemBarColor(color);
                             } catch(e) {}
-                            return null;
                         }
-                        var color = getBg(document.body)
-                            || getBg(document.documentElement)
-                            || getBg(document.getElementById('root'))
-                            || getBg(document.querySelector('header'))
-                            || '#1A1A1A';
-                        try {
-                            AndroidBridge.setSystemBarColor(color);
-                        } catch(e) {
-                            console.log('setSystemBarColor error:', e);
+                        updateSystemBar();
+                        if (!window.__themeObserverAttached) {
+                            window.__themeObserverAttached = true;
+                            var obs = new MutationObserver(updateSystemBar);
+                            obs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
+                            if (document.body) obs.observe(document.body, { attributes: true, attributeFilter: ['class', 'style'] });
+                            setInterval(updateSystemBar, 1500);
                         }
                     })();
                     """.trimIndent(),
                     null
                 )
 
-                // 注入 CSS：仅处理滚动优化和隐藏 PWA 提示
+                // 注入 CSS：优化移动端适配
                 view.evaluateJavascript(
                     """
                     (function() {
@@ -239,16 +235,10 @@ class MainActivity : ComponentActivity() {
                         style.id = 'mobile-fix-css';
                         style.textContent = `
                             html, body {
-                                overflow: hidden !important;
                                 overscroll-behavior: none !important;
                             }
                             .flex.h-full, .flex.flex-1 { min-height: 0 !important; }
-                            .overflow-y-auto, [class*="chat-messages"] {
-                                -webkit-overflow-scrolling: touch !important;
-                                overscroll-behavior: contain !important;
-                            }
                             [class*="install-prompt"], [class*="pwa-install"] { display: none !important; }
-                            [class*="overlay"]:not(.visible) { pointer-events: none !important; }
                         `;
                         document.head.appendChild(style);
                     })();
@@ -288,10 +278,12 @@ class MainActivity : ComponentActivity() {
         // 加载 Web 端
         webView.loadUrl(baseUrl)
 
-        // 应用 WindowInsets：状态栏高度作为顶部 padding，导航栏高度作为底部 padding
+        // 应用 WindowInsets：避免状态栏挡住顶部 UI，避免底部手势条/导航栏挡住输入框
         ViewCompat.setOnApplyWindowInsetsListener(rootContainer) { v, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(0, systemBars.top, 0, systemBars.bottom)
+            val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
+            val bottomPadding = if (ime.bottom > 0) ime.bottom else systemBars.bottom
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, bottomPadding)
             insets
         }
 
