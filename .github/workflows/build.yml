@@ -50,22 +50,16 @@ jobs:
           TAG="${GITHUB_REF_NAME:-v1.0.0}"
           mkdir -p release-apks
           
-          # Debug APK
-          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
-            cp app/build/outputs/apk/debug/app-debug.apk "release-apks/Antigravity-Mobile-${TAG}-debug.apk"
+          # Copy Release APK
+          if [ -f app/build/outputs/apk/release/app-release.apk ]; then
+            cp app/build/outputs/apk/release/app-release.apk "release-apks/Antigravity-Mobile-${TAG}.apk"
+          elif [ -f app/build/outputs/apk/release/app-release-unsigned.apk ]; then
+            cp app/build/outputs/apk/release/app-release-unsigned.apk "release-apks/Antigravity-Mobile-${TAG}.apk"
           fi
           
-          # Release APK (Auto-sign if unsigned)
-          if [ -f app/build/outputs/apk/release/app-release-unsigned.apk ]; then
-            echo "Signing release APK with default keystore..."
-            keytool -genkey -v -keystore release.keystore -alias antigravity -keyalg RSA -keysize 2048 -validity 10000 -storepass antigravity -keypass antigravity -dname "CN=Antigravity, OU=Mobile, O=Google, L=Mountain View, S=CA, C=US"
-            zipalign -v -p 4 app/build/outputs/apk/release/app-release-unsigned.apk release-apks/aligned.apk || cp app/build/outputs/apk/release/app-release-unsigned.apk release-apks/aligned.apk
-            apksigner sign --ks release.keystore --ks-pass pass:antigravity --out "release-apks/Antigravity-Mobile-${TAG}.apk" release-apks/aligned.apk
-            rm -f release-apks/aligned.apk release.keystore
-          elif [ -f app/build/outputs/apk/release/app-release.apk ]; then
-            cp app/build/outputs/apk/release/app-release.apk "release-apks/Antigravity-Mobile-${TAG}.apk"
-          else
-            cp "release-apks/Antigravity-Mobile-${TAG}-debug.apk" "release-apks/Antigravity-Mobile-${TAG}.apk"
+          # Copy Debug APK
+          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            cp app/build/outputs/apk/debug/app-debug.apk "release-apks/Antigravity-Mobile-${TAG}-debug.apk"
           fi
           
           ls -lh release-apks/
