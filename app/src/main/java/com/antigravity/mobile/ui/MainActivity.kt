@@ -21,6 +21,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.antigravity.mobile.network.TokenManager
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 // ============================================================
@@ -125,6 +126,15 @@ class MainActivity : ComponentActivity() {
             object {
                 @JavascriptInterface
                 fun getToken(): String = token
+
+                @JavascriptInterface
+                fun setToken(t: String) {
+                    if (t.isNotBlank()) {
+                        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                            tokenManager.saveAuthInfo(t, "DJSeven")
+                        }
+                    }
+                }
 
                 @JavascriptInterface
                 fun getServerUrl(): String = baseUrl
