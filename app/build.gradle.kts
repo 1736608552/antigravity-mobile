@@ -6,15 +6,15 @@ plugins {
 }
 
 android {
-    namespace = "com.claudecode.mobile"
+    namespace = "com.antigravity.mobile"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.claudecode.mobile"
+        applicationId = "com.antigravity.mobile"
         minSdk = 26
         targetSdk = 34
-        versionCode = 37
-        versionName = "2.0.7"
+        versionCode = 1
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.swiperefreshlayout)
 
     // Compose
     implementation(platform(libs.androidx.compose.bom))

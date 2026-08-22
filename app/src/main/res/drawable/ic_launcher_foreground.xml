@@ -4,11 +4,26 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- Terminal/code icon -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M38,42 L48,52 L38,62 L41,65 L54,52 L41,39 Z" />
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M56,62 L68,62 L68,66 L56,66 Z" />
+    <group
+        android:scaleX="0.55"
+        android:scaleY="0.55"
+        android:translateX="23"
+        android:translateY="23">
+        <!-- Antigravity Base Blue Loop -->
+        <path
+            android:fillColor="#3186FF"
+            android:pathData="M89.7,93.7 C94.4,97.2 101.4,94.9 94.9,88.4 C75.7,69.8 79.8,18.4 55.9,18.4 C31.9,18.4 36,69.8 16.8,88.4 C9.8,95.4 17.4,97.2 22,93.7 C40.1,81.4 38.9,59.9 55.9,59.9 C72.8,59.9 71.6,81.4 89.7,93.7 Z" />
+        <!-- Yellow Glow Accent -->
+        <path
+            android:fillColor="#FBBC04"
+            android:pathData="M55.9,59.9 C40.1,59.9 38.9,78 28,88 C34,84 45,76 55.9,76 C66.8,76 77.8,84 83.8,88 C72.9,78 71.7,59.9 55.9,59.9 Z" />
+        <!-- Center Core Glow -->
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M55.9,45 C51,45 47,49 47,54 C47,59 51,63 55.9,63 C60.8,63 64.8,59 64.8,54 C64.8,49 60.8,45 55.9,45 Z" />
+        <!-- Green Energy Curve -->
+        <path
+            android:fillColor="#00B95C"
+            android:pathData="M55.9,20 C40,20 34,42 42,60 C40,50 45,35 55.9,35 C66.8,35 71.8,50 69.8,60 C77.8,42 71.8,20 55.9,20 Z" />
+    </group>
 </vector>

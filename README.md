@@ -1,38 +1,27 @@
-# Claude Code Mobile
+# Google Antigravity Mobile
 
-An Android client for [Claude Code UI](https://github.com/siteboon/claudecodeui) (CloudCLI).
+An Android client for [Google Antigravity WebUI](http://fn0.xx.kg:3100).
 
-Connect to your self-hosted CloudCLI server or CloudCLI Cloud from your Android device.
+Connect to your self-hosted Google Antigravity server directly from your Android device.
 
 ## Features
 
-- **WebView Wrapper** - Native Android shell around the CloudCLI web UI
-- **Multiple Servers** - Save and switch between multiple server configurations
-- **File Upload** - Full support for file uploads through the web interface
-- **Pull to Refresh** - Swipe down to reload the current page
-- **Dark/Light Theme** - Follows system theme automatically
-- **SSL Trust Options** - Enable trust for self-signed certificates on local dev servers
-- **Cookie Persistence** - Stay logged in across app restarts
-- **Back Navigation** - Hardware back button navigates within WebView history
-
-## Screenshots
-
-| Main View | Server Settings | Add Server |
-|---|---|---|
-| WebView with toolbar | Server list | Server form |
+- **WebView Wrapper** - Native Android shell around the Antigravity Web UI
+- **Pull to Refresh (下拉刷新)** - Swipe down to reload the current page seamlessly
+- **Google Antigravity Brand** - Official Antigravity theme, icons, and colors
+- **File Upload** - Full support for file and image uploads through the web interface
+- **Dark/Light Theme** - Sleek Google Antigravity dark theme
+- **Cookie & Token Persistence** - Stay logged in across app restarts
+- **Edge-to-Edge Experience** - Dynamic status bar and navigation bar integration
 
 ## Quick Start
-
-### Download
-
-Download the latest APK from [GitHub Releases](../../releases).
 
 ### Build from Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/djsevenx1/claude-code-mobile.git
-cd claude-code-mobile
+git clone https://github.com/djsevenx1/antigravity-mobile.git
+cd antigravity-mobile
 
 # Build debug APK
 ./gradlew assembleDebug
@@ -42,22 +31,7 @@ cd claude-code-mobile
 
 ### Configuration
 
-1. Launch the app
-2. Open Settings (menu > Settings)
-3. Tap the + button to add a server
-4. Enter your server URL (e.g., `http://192.168.1.100:3001` or `https://cloudcli.ai`)
-5. Set the server as default
-6. Return to the main screen
-
-### Setting up CloudCLI Server
-
-Follow the [CloudCLI documentation](https://cloudcli.ai/docs) to run a server:
-
-```bash
-# Using npx (requires Node.js v22+)
-npx @cloudcli-ai/cloudcli
-
-# Or install globally
+默认直接连接到 `http://fn0.xx.kg:3100`，也可在登录页随时输入/切换其它 Antigravity 部署节点。
 npm install -g @cloudcli-ai/cloudcli
 cloudcli
 ```

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Claude Code Mobile</string>
+    <string name="app_name">Google Antigravity</string>
     <string name="settings_title">Settings</string>
     <string name="add_server_title">Add Server</string>
     <string name="edit_server_title">Edit Server</string>
@@ -10,9 +10,9 @@
     <string name="select_server">Select Server</string>
     <string name="switch_server">Switch Server</string>
     <string name="no_servers">No servers configured yet.\nTap + to add one.</string>
-    <string name="server_name_hint">Server Name</string>
-    <string name="server_url_hint">Server URL</string>
-    <string name="server_url_help">Example: http://192.168.1.100:3001 or https://cloudcli.ai</string>
+    <string name="server_name_hint">Antigravity Server</string>
+    <string name="server_url_hint">http://fn0.xx.kg:3100</string>
+    <string name="server_url_help">默认地址: http://fn0.xx.kg:3100</string>
     <string name="trust_all_certs">Trust all certificates</string>
     <string name="trust_all_certs_help">Enable for local dev servers with self-signed SSL certificates</string>
     <string name="save">Save</string>

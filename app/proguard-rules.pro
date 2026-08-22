@@ -2,32 +2,32 @@
 
 # Keep WebView related classes
 -keep class android.webkit.** { *; }
--keep class com.claudecode.mobile.web.** { *; }
+-keep class com.antigravity.mobile.web.** { *; }
 
 # Keep data classes
--keep class com.claudecode.mobile.data.** { *; }
+-keep class com.antigravity.mobile.data.** { *; }
 
 # ===================== 网络层 ProGuard 规则 =====================
 
 # 保留所有 DTO 数据类（kotlinx.serialization 反射需要）
--keep class com.claudecode.mobile.network.dto.** { *; }
+-keep class com.antigravity.mobile.network.dto.** { *; }
 # 保留 @Serializable 注解的类（含伴生对象与序列化器）
--keepclassmembers class com.claudecode.mobile.network.dto.** {
+-keepclassmembers class com.antigravity.mobile.network.dto.** {
     *** Companion;
 }
--keepclasseswithmembers class com.claudecode.mobile.network.dto.** {
+-keepclasseswithmembers class com.antigravity.mobile.network.dto.** {
     kotlinx.serialization.KSerializer serializer(...);
 }
 
 # 保留 WebSocket 消息模型（CloudFrame, ChatMessage, ChatOptions 等用于运行时序列化）
--keep class com.claudecode.mobile.network.CloudWebSocketClient$* { *; }
--keep class com.claudecode.mobile.network.CloudFrame { *; }
--keep class com.claudecode.mobile.network.ChatMessage { *; }
--keep class com.claudecode.mobile.network.ChatOptions { *; }
--keep class com.claudecode.mobile.network.ConnectionState$* { *; }
+-keep class com.antigravity.mobile.network.CloudWebSocketClient$* { *; }
+-keep class com.antigravity.mobile.network.CloudFrame { *; }
+-keep class com.antigravity.mobile.network.ChatMessage { *; }
+-keep class com.antigravity.mobile.network.ChatOptions { *; }
+-keep class com.antigravity.mobile.network.ConnectionState$* { *; }
 
 # 保留 Retrofit 接口（CloudApi 的方法签名被反射调用）
--keep,allowobfuscation,allowshrinking interface com.claudecode.mobile.network.CloudApi
+-keep,allowobfuscation,allowshrinking interface com.antigravity.mobile.network.CloudApi
 
 # Retrofit 相关通用规则
 -keepattributes Signature, InnerClasses, EnclosingMethod
