@@ -247,7 +247,6 @@ class MainActivity : ComponentActivity() {
                             html, body {
                                 overscroll-behavior: none !important;
                             }
-                            .flex.h-full, .flex.flex-1 { min-height: 0 !important; }
                             [class*="install-prompt"], [class*="pwa-install"] { display: none !important; }
                         `;
                         document.head.appendChild(style);
@@ -282,6 +281,11 @@ class MainActivity : ComponentActivity() {
 
         // --- WebChromeClient ---
         webView.webChromeClient = object : WebChromeClient() {
+            override fun onConsoleMessage(consoleMessage: android.webkit.ConsoleMessage?): Boolean {
+                android.util.Log.d("AntigravityWeb", "${consoleMessage?.message()} (Line ${consoleMessage?.lineNumber()})")
+                return true
+            }
+
             override fun onShowFileChooser(
                 webView: WebView?,
                 filePathCallback: android.webkit.ValueCallback<Array<Uri>?>?,
