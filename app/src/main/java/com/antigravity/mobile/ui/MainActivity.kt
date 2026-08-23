@@ -53,13 +53,25 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val targetUrl = "http://fn0.xx.kg:3100"
-        val token = runBlocking { tokenManager.getToken() } ?: ""
-        showWebView(targetUrl, token)
+        showWebView(targetUrl)
+
+        // 异步加载 Token 并注入 Cookie，绝不在主线程阻塞 UI 渲染
+        lifecycleScope.launch {
+            val token = tokenManager.getToken() ?: ""
+            if (token.isNotBlank()) {
+                CookieManager.getInstance().setCookie(targetUrl, "agy_auth_token=$token; path=/; max-age=2592000")
+            }
+        }
     }
 
     @SuppressLint("SetJavaScriptEnabled")
-    private fun showWebView(baseUrl: String, token: String) {
-        webView = WebView(this)
+    private fun showWebView(baseUrl: String) {
+        webView = WebView(this).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        }
 
         // --- WebView 配置 ---
         webView.settings.apply {
@@ -87,9 +99,6 @@ class MainActivity : ComponentActivity() {
         CookieManager.getInstance().apply {
             setAcceptCookie(true)
             setAcceptThirdPartyCookies(webView, true)
-            if (token.isNotBlank()) {
-                setCookie(baseUrl, "agy_auth_token=$token; path=/; max-age=2592000")
-            }
         }
 
         // --- 下拉刷新组件 ---
