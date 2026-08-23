@@ -76,18 +76,21 @@ class MainActivity : ComponentActivity() {
             displayZoomControls = false
             loadWithOverviewMode = true
             useWideViewPort = true
-            allowUniversalAccessFromFileURLs = true
+            // 采用标准 Chrome Mobile User-Agent，确保与手机浏览器 100% 体验完全一致
+            userAgentString = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Mobile Safari/537.36"
         }
 
-        // WebView 背景设为与网页一致的深色，加载期间不闪黑
+        // WebView 背景设为深色
         webView.setBackgroundColor(Color.parseColor("#1A1A1A"))
 
         // --- Cookie 管理 ---
         CookieManager.getInstance().apply {
             setAcceptCookie(true)
             setAcceptThirdPartyCookies(webView, true)
+            if (token.isNotBlank()) {
+                setCookie(baseUrl, "agy_auth_token=$token; path=/; max-age=2592000")
+            }
         }
-        CookieManager.getInstance().setCookie(baseUrl, "token=$token; path=/; max-age=2592000")
 
         // --- 下拉刷新组件 ---
         swipeRefreshLayout = SwipeRefreshLayout(this).apply {
@@ -106,12 +109,12 @@ class MainActivity : ComponentActivity() {
                 webView.reload()
             }
             setOnChildScrollUpCallback { _, _ ->
-                webView.scrollY > 0
+                webView.canScrollVertically(-1)
             }
         }
         swipeRefreshLayout.addView(webView)
 
-        // --- 容器（用原生 padding 处理系统栏） ---
+        // --- 容器 ---
         rootContainer = FrameLayout(this).apply {
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
@@ -147,8 +150,6 @@ class MainActivity : ComponentActivity() {
                             rootContainer.setBackgroundColor(parsed)
                             window.statusBarColor = parsed
                             window.navigationBarColor = parsed
-                            // 根据背景亮度自动切换状态栏文字颜色
-                            // 浅色背景 → 深色文字，深色背景 → 浅色文字
                             val isLight = isColorLight(parsed)
                             WindowInsetsControllerCompat(window, window.decorView).apply {
                                 isAppearanceLightStatusBars = isLight
@@ -171,11 +172,15 @@ class MainActivity : ComponentActivity() {
                 request: WebResourceRequest
             ): Boolean {
                 val url = request.url.toString()
-                if (!url.startsWith(baseUrl)) {
+                if (url.startsWith("http://") || url.startsWith("https://")) {
+                    return false
+                }
+                try {
                     startActivity(Intent(Intent.ACTION_VIEW, request.url))
                     return true
+                } catch(e: Exception) {
+                    return false
                 }
-                return false
             }
 
             override fun onPageFinished(view: WebView, url: String) {
@@ -192,9 +197,8 @@ class MainActivity : ComponentActivity() {
                             if (typeof localStorage !== 'undefined') {
                                 var token = AndroidBridge.getToken();
                                 if (token) {
+                                    localStorage.setItem('agy-auth-token', token);
                                     localStorage.setItem('token', token);
-                                    localStorage.setItem('accessToken', token);
-                                    localStorage.setItem('jwt_token', token);
                                 }
                             }
                         } catch(e) { console.log('Token inject error:', e); }
@@ -218,7 +222,6 @@ class MainActivity : ComponentActivity() {
                                 var color = getBg(document.querySelector('header'))
                                     || getBg(document.body)
                                     || getBg(document.documentElement)
-                                    || getBg(document.getElementById('root'))
                                     || '#181A1F';
                                 AndroidBridge.setSystemBarColor(color);
                             } catch(e) {}
@@ -353,19 +356,20 @@ class MainActivity : ComponentActivity() {
 
     private fun showErrorPage(baseUrl: String) {
         val html = """
-            <html><body style="background:#1a1a2e;color:#e0e0e0;font-family:sans-serif;
+            <!DOCTYPE html>
+            <html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"/></head>
+            <body style="background:#181A1F;color:#e0e0e0;font-family:sans-serif;
             display:flex;flex-direction:column;align-items:center;justify-content:center;
-            height:100vh;margin:0;padding:20px;text-align:center;">
-            <h2 style="color:#e94560;">连接失败</h2>
-            <p>无法连接到服务器</p>
-            <p style="color:#888;font-size:14px;word-break:break-all;">$baseUrl</p>
-            <p style="color:#666;font-size:13px;margin-top:20px;">请检查网络连接或服务器地址</p>
-            <button onclick="location.reload()" style="margin-top:20px;padding:10px 30px;
-            background:#e94560;color:white;border:none;border-radius:8px;font-size:16px;
-            cursor:pointer;">重试</button>
+            height:100vh;margin:0;padding:20px;text-align:center;box-sizing:border-box;">
+            <h2 style="color:#3186FF;margin-bottom:8px;">连接异常</h2>
+            <p style="color:#aaa;margin-bottom:6px;">无法连接到后端服务器</p>
+            <p style="color:#666;font-size:13px;word-break:break-all;">$baseUrl</p>
+            <button onclick="window.location.href='$baseUrl'" style="margin-top:24px;padding:12px 32px;
+            background:#3186FF;color:white;border:none;border-radius:8px;font-size:15px;
+            cursor:pointer;font-weight:600;">重新加载</button>
             </body></html>
         """.trimIndent()
-        webView.loadDataWithBaseURL(null, html, "text/html", "UTF-8", null)
+        webView.loadDataWithBaseURL(baseUrl, html, "text/html", "UTF-8", null)
     }
 
     override fun onBackPressed() {
