@@ -19,10 +19,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.antigravity.mobile.network.TokenManager
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 // ============================================================
 // 主 Activity (WebView 封装方案)
@@ -35,6 +35,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var swipeRefreshLayout: SwipeRefreshLayout
     private lateinit var rootContainer: FrameLayout
     private val tokenManager by lazy { TokenManager(applicationContext) }
+    private var currentToken: String = ""
 
     private var filePathCallback: android.webkit.ValueCallback<Array<Uri>?>? = null
 
@@ -57,9 +58,9 @@ class MainActivity : ComponentActivity() {
 
         // 异步加载 Token 并注入 Cookie，绝不在主线程阻塞 UI 渲染
         lifecycleScope.launch {
-            val token = tokenManager.getToken() ?: ""
-            if (token.isNotBlank()) {
-                CookieManager.getInstance().setCookie(targetUrl, "agy_auth_token=$token; path=/; max-age=2592000")
+            currentToken = tokenManager.getToken() ?: ""
+            if (currentToken.isNotBlank()) {
+                CookieManager.getInstance().setCookie(targetUrl, "agy_auth_token=$currentToken; path=/; max-age=2592000")
             }
         }
     }
@@ -137,12 +138,13 @@ class MainActivity : ComponentActivity() {
         webView.addJavascriptInterface(
             object {
                 @JavascriptInterface
-                fun getToken(): String = token
+                fun getToken(): String = currentToken
 
                 @JavascriptInterface
                 fun setToken(t: String) {
                     if (t.isNotBlank()) {
-                        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+                        currentToken = t
+                        lifecycleScope.launch {
                             tokenManager.saveAuthInfo(t, "DJSeven")
                         }
                     }
